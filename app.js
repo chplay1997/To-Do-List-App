@@ -1,9 +1,20 @@
 //Data
-let listWork = ['Create the calculator app',
-    'Additional articles',
-    'Create the to do list app',
-    'Create your own javascript app',
-    'Learn ReactJS'
+let listWork = [{
+    status: true,
+    content: 'Create the calculator app'
+},{
+    status: true,
+    content: 'Additional articles'
+},{
+    status: true,
+    content: 'Create the to do list app'
+},{
+    status: false,
+    content: 'Create your own javascript app'
+},{
+    status: false,
+    content: 'Learn ReactJS'
+}
 ]
 let list = document.getElementById('list');
 let node = null;
@@ -13,7 +24,10 @@ function render() {
     list.innerHTML = '';
     if(listWork.length != 0){
         listWork.forEach((e, index) => {
-            list.innerHTML += `<div class="item" id = ${index}><span></span> ${e}
+            let status = e.status?'checked':'';
+            list.innerHTML += `<div class="item" id = ${index}>
+            <input class='status' ${status} type="checkbox"/>
+            <span></span> ${e.content}
             <i class="fa fa-times" aria-hidden="true" id="delete"></i>
             </div>`;
         })
@@ -32,7 +46,11 @@ addEventListener('mousedown', (e) => {
         node = document.createElement('div');
         node.className = "item";
         node.id = parent.id;
-        node.innerHTML = `<span></span> ${listWork[parent.id]}`;
+        node.innerHTML = `
+        <input class='status' ${listWork[parent.id].status?'checked':''} type="checkbox"/>
+        <input type="checkbox"/>
+        <span></span> 
+        ${listWork[parent.id].content}`;
         node.style = `position:fixed;
                     top:${clone.y}px;
                     left:${clone.x}px;
@@ -41,6 +59,11 @@ addEventListener('mousedown', (e) => {
                     z-index:100;
                     `
         list.appendChild(node);
+    }
+    //Checkbox complete or notyet
+    else if(e.target.matches('.status')){
+        let parent = e.target.closest('.item');
+        listWork[parent.id].status = !listWork[parent.id].status;
     }
 })
 
@@ -62,10 +85,12 @@ addEventListener('mouseup', (e) => {
     else if(e.target.matches('#add-work')){
         let text = document.getElementById('input-text');
         if(text.value != ''){
-            listWork.push(text.value);
+            let newWork = {status:false,content:text.value};
+            listWork.push(newWork);
             text.value = '';
         }
     }
+    
     //Handle drop item and change position of list work
     else if(node != null){
         //position drop item
@@ -73,7 +98,7 @@ addEventListener('mouseup', (e) => {
         if(drop != null){
             let balanceItem = (drop.getBoundingClientRect().bottom + drop.getBoundingClientRect().top)/2;
             let index = drop.id;
-            if(e.clientY >= balanceItem && index != 0){
+            if(e.clientY >= balanceItem){
                 index++;
             }
             let str = listWork[node.id];
